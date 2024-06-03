@@ -4,14 +4,17 @@
 
 This project implements a distributed order management system using the Saga pattern with microservices architecture. The system is composed of several services that handle different aspects of the order processing workflow, coordinated by an Orchestrator service. Kafka is used for event-driven communication between services. Kafka is running via Docker Compose.
 
-![alt text](https://github.com/abbes-larbaoui/saga-pattern/blob/master/architecture_diagram.jpg?raw=true)
-
 ## Technologies
 
 - **Java 17**
 - **Spring Boot 3.2.5**
 - **Apache Kafka**
 - **Docker Compose**
+
+## Architecture
+
+![alt text](https://github.com/abbes-larbaoui/saga-pattern/blob/master/architecture_diagram.jpg?raw=true)
+
 
 ## Services
 

@@ -46,9 +46,8 @@ If any step in the process fails (e.g., payment fails or stock reservation fails
 
 A Timeout Manager is implemented to detect if an expected event does not arrive within a certain time frame, thereby triggering compensating actions to handle service unavailability.
 
-## Getting Started
 
-### Prerequisites
+## Prerequisites
 
 - Java 17
 - Docker & Docker Compose

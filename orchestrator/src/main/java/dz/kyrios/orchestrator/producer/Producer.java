@@ -1,7 +1,7 @@
-package dz.kyrios.notification.producer;
+package dz.kyrios.orchestrator.producer;
 
-import dz.kyrios.notification.event.NotificationEvent;
+import com.fasterxml.jackson.core.JsonProcessingException;
 
 public interface Producer {
-    void sendNotificationEvent(NotificationEvent notificationEvent);
+    void sendEvent(String topic, Object event);
 }

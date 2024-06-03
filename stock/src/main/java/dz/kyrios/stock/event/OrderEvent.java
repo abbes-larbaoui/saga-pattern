@@ -1,4 +1,4 @@
-package dz.kyrios.payment.event;
+package dz.kyrios.stock.event;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

@@ -1,9 +1,10 @@
-package dz.kyrios.notification.consumer;
+package dz.kyrios.orchestrator.consumer;
 
-import dz.kyrios.notification.event.NotificationEvent;
-import dz.kyrios.notification.event.StockEvent;
-import dz.kyrios.notification.producer.Producer;
-import dz.kyrios.notification.service.NotificationService;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import dz.kyrios.orchestrator.event.PaymentEvent;
+import dz.kyrios.orchestrator.event.StockEvent;
+import dz.kyrios.orchestrator.service.OrchestratorService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
@@ -12,22 +13,25 @@ import org.springframework.stereotype.Component;
 @Component
 public class KafkaConsumer {
 
-    private final NotificationService notificationService;
+    private final OrchestratorService orchestratorService;
 
-    private final Producer producer;
+    private final ObjectMapper mapper;
 
-    public KafkaConsumer(NotificationService notificationService, Producer producer) {
-        this.notificationService = notificationService;
-        this.producer = producer;
+
+    public KafkaConsumer(OrchestratorService orchestratorService, ObjectMapper mapper) {
+        this.orchestratorService = orchestratorService;
+        this.mapper = mapper;
     }
 
-    @KafkaListener(topics = "stock-events", groupId = "notification-group")
-    public void handlePaymentEvent(StockEvent stockEvent) {
-        if ("STOCK_RESERVED".equals(stockEvent.getStatus())) {
-            NotificationEvent notificationEvent = new NotificationEvent(stockEvent.getOrderId(), "NOTIFICATION_SENT");
-            producer.sendNotificationEvent(notificationEvent);
-        }
+    @KafkaListener(topics = "payment-events", groupId = "orchestrator-group")
+    public void handlePaymentEvent(String event) throws JsonProcessingException {
+        PaymentEvent paymentEvent = mapper.readValue(event, PaymentEvent.class);
+        orchestratorService.handlePaymentEvent(paymentEvent);
     }
 
-
+    @KafkaListener(topics = "stock-events", groupId = "orchestrator-group")
+    public void handleStockEvent(String event) throws JsonProcessingException {
+        StockEvent stockEvent = mapper.readValue(event, StockEvent.class);
+        orchestratorService.handleStockEvent(stockEvent);
+    }
 }

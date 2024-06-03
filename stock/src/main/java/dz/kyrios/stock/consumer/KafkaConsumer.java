@@ -1,9 +1,11 @@
-package dz.kyrios.payment.consumer;
+package dz.kyrios.stock.consumer;
 
-import dz.kyrios.payment.event.OrderEvent;
-import dz.kyrios.payment.event.PaymentEvent;
-import dz.kyrios.payment.producer.Producer;
-import dz.kyrios.payment.service.PaymentService;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import dz.kyrios.stock.event.PaymentEvent;
+import dz.kyrios.stock.event.StockEvent;
+import dz.kyrios.stock.producer.Producer;
+import dz.kyrios.stock.service.StockService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
@@ -12,36 +14,51 @@ import org.springframework.stereotype.Component;
 @Component
 public class KafkaConsumer {
 
-    private final PaymentService paymentService;
+    private final StockService stockService;
 
     private final Producer producer;
 
-    public KafkaConsumer(PaymentService paymentService, Producer producer) {
-        this.paymentService = paymentService;
+    private final ObjectMapper mapper;
+
+    public KafkaConsumer(StockService stockService, Producer producer, ObjectMapper mapper) {
+        this.stockService = stockService;
         this.producer = producer;
+        this.mapper = mapper;
     }
 
-    @KafkaListener(topics = "order-events", groupId = "payment-group")
-    public void handleOrderEvent(OrderEvent orderEvent) {
-        if ("ORDER_CREATED".equals(orderEvent.getStatus())) {
+    @KafkaListener(topics = "payment-events", groupId = "stock-group")
+    public void handlePaymentEvent(String event) {
+        PaymentEvent paymentEvent = null;
+        try {
+            paymentEvent = mapper.readValue(event, PaymentEvent.class);
+        } catch (JsonProcessingException e) {
+            log.error(e.getMessage());
+        }
+        if ("PAYMENT_COMPLETED".equals(paymentEvent.getStatus())) {
             // Process payment
-            PaymentEvent paymentEvent;
+            StockEvent stockEvent;
             try {
-                paymentService.processPayment(orderEvent.getOrderId());
-                paymentEvent = new PaymentEvent(orderEvent.getOrderId(), "PAYMENT_COMPLETED");
+                stockService.reserveStock(paymentEvent.getOrderId());
+                stockEvent = new StockEvent(paymentEvent.getOrderId(), "STOCK_RESERVED");
             } catch (Exception e) {
-                paymentEvent = new PaymentEvent(orderEvent.getOrderId(), "PAYMENT_FAILED");
+                stockEvent = new StockEvent(paymentEvent.getOrderId(), "STOCK_RESERVATION_FAILED");
             }
 
-            producer.sendPaymentEvent(paymentEvent);
+            producer.sendStockEvent(stockEvent);
         }
     }
 
-    @KafkaListener(topics = "payment-events", groupId = "payment-group")
-    public void handlePaymentEvent(PaymentEvent paymentEvent) {
-        if ("ROLLBACK_PAYMENT".equals(paymentEvent.getStatus())) {
-            // Perform payment rollback logic
-            paymentService.rollbackPayment(paymentEvent.getOrderId());
+    @KafkaListener(topics = "stock-events", groupId = "stock-group")
+    public void handleStockEvent(String event) {
+        StockEvent stockEvent = null;
+        try {
+            stockEvent = mapper.readValue(event, StockEvent.class);
+        } catch (JsonProcessingException e) {
+            log.error(e.getMessage());
+        }
+        if ("ROLLBACK_STOCK".equals(stockEvent.getStatus())) {
+            // Perform stock rollback logic
+            stockService.rollbackStockReservation(stockEvent.getOrderId());
         }
     }
 }

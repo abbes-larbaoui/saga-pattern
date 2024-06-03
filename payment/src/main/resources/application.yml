@@ -1,13 +1,20 @@
 server:
-  port: 2605
+  port: 2606
 spring:
   application:
-    name: order
+    name: payment
   kafka:
     bootstrap-servers: localhost:9092
     producer:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+#      properties:
+#        spring.json.use.type.headers: false
+#        spring.json.type.mapping: paymentEvent:dz.kyrios.payment.event.PaymentEvent
     consumer:
+      group-id: payment-group
       key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
       value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+#      properties:
+#        spring.json.trusted.packages: "*"
+#        spring.json.type.mapping: orderEvent:dz.kyrios.payment.event.OrderEvent,paymentEvent:dz.kyrios.payment.event.PaymentEvent

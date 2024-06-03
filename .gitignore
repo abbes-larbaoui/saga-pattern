@@ -1,1 +1,5 @@
 /.idea/
+/payment/target/
+/order/target/
+/orchestrator/target/
+/notification/target/

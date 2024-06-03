@@ -1,2 +1,13 @@
-package dz.kyrios.order.event;public class OrderEvent {
+package dz.kyrios.order.event;
+
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+public class OrderEvent {
+    private String orderId;
+    private String status;
 }

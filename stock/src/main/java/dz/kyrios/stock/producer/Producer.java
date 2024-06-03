@@ -1,7 +1,7 @@
-package dz.kyrios.payment.producer;
+package dz.kyrios.stock.producer;
 
-import dz.kyrios.payment.event.PaymentEvent;
+import dz.kyrios.stock.event.StockEvent;
 
 public interface Producer {
-    void sendPaymentEvent(PaymentEvent paymentEvent);
+    void sendStockEvent(StockEvent stockEvent);
 }

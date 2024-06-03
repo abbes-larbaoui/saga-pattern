@@ -1,9 +1,9 @@
-package dz.kyrios.stock.consumer;
+package dz.kyrios.notification.consumer;
 
-import dz.kyrios.stock.event.PaymentEvent;
-import dz.kyrios.stock.event.StockEvent;
-import dz.kyrios.stock.producer.Producer;
-import dz.kyrios.stock.service.StockService;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import dz.kyrios.notification.event.NotificationEvent;
+import dz.kyrios.notification.service.NotificationService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
@@ -12,36 +12,19 @@ import org.springframework.stereotype.Component;
 @Component
 public class KafkaConsumer {
 
-    private final StockService stockService;
+    private final NotificationService notificationService;
 
-    private final Producer producer;
+    private final ObjectMapper mapper;
 
-    public KafkaConsumer(StockService stockService, Producer producer) {
-        this.stockService = stockService;
-        this.producer = producer;
+    public KafkaConsumer(NotificationService notificationService, ObjectMapper mapper) {
+        this.notificationService = notificationService;
+        this.mapper = mapper;
     }
 
-    @KafkaListener(topics = "payment-events", groupId = "stock-group")
-    public void handlePaymentEvent(PaymentEvent paymentEvent) {
-        if ("PAYMENT_COMPLETED".equals(paymentEvent.getStatus())) {
-            // Process payment
-            StockEvent stockEvent;
-            try {
-                stockService.reserveStock(paymentEvent.getOrderId());
-                stockEvent = new StockEvent(paymentEvent.getOrderId(), "STOCK_RESERVED");
-            } catch (Exception e) {
-                stockEvent = new StockEvent(paymentEvent.getOrderId(), "STOCK_RESERVATION_FAILED");
-            }
-
-            producer.sendStockEvent(stockEvent);
-        }
+    @KafkaListener(topics = "notification-events", groupId = "notification-group")
+    public void handleNotificationEvent(String event) throws JsonProcessingException {
+        NotificationEvent notificationEvent = mapper.readValue(event, NotificationEvent.class);
+        notificationService.sendNotification(notificationEvent);
     }
 
-    @KafkaListener(topics = "stock-events", groupId = "stock-group")
-    public void handleStockEvent(StockEvent stockEvent) {
-        if ("ROLLBACK_STOCK".equals(stockEvent.getStatus())) {
-            // Perform stock rollback logic
-            stockService.rollbackStockReservation(stockEvent.getOrderId());
-        }
-    }
 }

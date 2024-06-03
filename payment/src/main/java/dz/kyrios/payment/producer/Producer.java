@@ -1,7 +1,8 @@
-package dz.kyrios.order.producer;
+package dz.kyrios.payment.producer;
 
-import dz.kyrios.order.event.OrderEvent;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import dz.kyrios.payment.event.PaymentEvent;
 
 public interface Producer {
-    void sendOrderEvent(OrderEvent orderEvent);
+    void sendPaymentEvent(PaymentEvent paymentEvent);
 }

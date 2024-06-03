@@ -1,4 +1,4 @@
-package dz.kyrios.stock.event;
+package dz.kyrios.notification.event;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

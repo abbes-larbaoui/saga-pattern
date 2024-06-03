@@ -11,11 +11,6 @@ This project implements a distributed order management system using the Saga pat
 - **Apache Kafka**
 - **Docker Compose**
 
-## Architecture
-
-![alt text](https://github.com/abbes-larbaoui/saga-pattern/blob/master/architecture_diagram.jpg?raw=true)
-
-
 ## Services
 
 The system includes the following services:
@@ -27,6 +22,9 @@ The system includes the following services:
 5. **Orchestrator Service**: Coordinates the entire workflow, handling events and triggering compensating actions when necessary.
 
 ## Architecture
+
+![alt text](https://github.com/abbes-larbaoui/saga-pattern/blob/master/architecture_diagram.jpg?raw=true)
+
 
 ### Saga Pattern
 
